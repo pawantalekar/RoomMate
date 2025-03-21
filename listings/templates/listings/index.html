@@ -1,0 +1,14 @@
+{% extends 'listings/base.html' %}
+
+{% block title %}Welcome to RoomMate{% endblock %}
+
+{% block content %}
+<div class="text-center mt-5">
+    <h1>Welcome to RoomMate!</h1>
+    <p>Your ultimate platform for finding roommates and renting rooms.</p>
+
+    <div class="mt-4">
+        <a href="{% url 'login_register' %}" class="btn btn-primary btn-lg">Login / Register</a>
+    </div>
+</div>
+{% endblock %}

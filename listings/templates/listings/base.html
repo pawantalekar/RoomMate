@@ -1,0 +1,519 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}RoomMate{% endblock %}</title>
+    <!-- Bootstrap CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <!-- Google Fonts: Poppins -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Leaflet.js -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <!-- Custom Styles -->
+    <style>
+       
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #eef2f7 0%, #d1d9e6 100%);
+            color: #2c3e50;
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+
+        .container {
+            flex: 1;
+            padding: 0 20px;
+            max-width: 1400px;
+        }
+
+        /* Navbar Styling */
+        .navbar {
+            background: linear-gradient(90deg, #1e3c72 0%, #2a5298 100%);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            padding: 15px 30px;
+            position: sticky;
+            top: 0;
+            z-index: 1030;
+            transition: all 0.3s ease;
+        }
+
+        .navbar.scrolled {
+            background: linear-gradient(90deg, #1e3c72ee 0%, #2a5298ee 100%);
+            padding: 10px 30px;
+            box-shadow: 0 6px 25px rgba(0, 0, 0, 0.25);
+        }
+
+        .navbar-brand {
+            color: #fff !important;
+            font-weight: 800;
+            font-size: 2.2rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            background: linear-gradient(45deg, #fff, #ffd700);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            transition: transform 0.3s ease;
+        }
+
+        .navbar-brand:hover {
+            transform: scale(1.05);
+        }
+
+        .navbar-nav .nav-link {
+            color: #fff !important;
+            font-weight: 600;
+            font-size: 1.1rem;
+            padding: 10px 20px;
+            border-radius: 30px;
+            transition: all 0.3s ease;
+        }
+
+        .navbar-nav .nav-link:hover {
+            color: #ffd700 !important;
+            background: rgba(255, 215, 0, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .nav-link.active {
+            color: #ffd700 !important;
+            font-weight: 700;
+            background: rgba(255, 215, 0, 0.2);
+            box-shadow: 0 2px 10px rgba(255, 215, 0, 0.3);
+        }
+
+        .navbar-toggler {
+            border: none;
+            color: #fff;
+        }
+
+        .navbar-toggler-icon {
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba(255, 255, 255, 0.95)' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+        }
+
+        /* Profile Dropdown */
+        .profile-dropdown img {
+            border-radius: 50%;
+            width: 45px;
+            height: 45px;
+            border: 3px solid #ffd700;
+            transition: all 0.3s ease;
+        }
+
+        .profile-dropdown:hover img {
+            transform: scale(1.1);
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
+        }
+
+        .dropdown-menu {
+            background: #fff;
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+            padding: 15px;
+            animation: dropdownFade 0.3s ease;
+        }
+
+        @keyframes dropdownFade {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .dropdown-item {
+            font-weight: 500;
+            padding: 12px 20px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .dropdown-item:hover {
+            background: linear-gradient(45deg, #ff6b6b, #ffd700);
+            color: #fff;
+            transform: translateX(5px);
+        }
+
+        .dropdown-item.text-danger:hover {
+            background: #dc3545;
+            color: #fff;
+        }
+
+        .dropdown-divider {
+            border-color: #e5e7eb;
+            margin: 8px 0;
+        }
+
+        /* Buttons */
+        .btn-primary {
+            background: linear-gradient(45deg, #ff6b6b, #ffd700);
+            border: none;
+            font-weight: 600;
+            padding: 12px 25px;
+            border-radius: 30px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(45deg, #ff8787, #ffe066);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(255, 107, 107, 0.5);
+        }
+
+        /* Card Styling */
+        .card {
+            border: none;
+            border-radius: 15px;
+            background: #fff;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
+
+        .card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        .card-img-top {
+            height: 220px;
+            object-fit: cover;
+            transition: transform 0.4s ease;
+        }
+
+        .card:hover .card-img-top {
+            transform: scale(1.08);
+        }
+
+        .card-body {
+            padding: 25px;
+        }
+
+        .card-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #1e3c72;
+            margin-bottom: 15px;
+            transition: color 0.3s ease;
+        }
+
+        .card-title:hover {
+            color: #ff6b6b;
+        }
+
+        .card-text {
+            color: #6b7280;
+            font-size: 1rem;
+        }
+
+        /* Footer Styling */
+        footer {
+            background: linear-gradient(90deg, #1e3c72 0%, #2a5298 100%);
+            color: #fff;
+            padding: 60px 0 20px;
+            margin-top: auto;
+            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            padding: 0 20px;
+        }
+
+        .footer-section {
+            flex: 1;
+            min-width: 200px;
+            margin-bottom: 30px;
+        }
+
+        .footer-section h5 {
+            font-weight: 700;
+            font-size: 1.3rem;
+            margin-bottom: 20px;
+            color: #ffd700;
+        }
+
+        .footer-section ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .footer-section ul li {
+            margin-bottom: 12px;
+        }
+
+        .footer-section ul li a {
+            color: #d1d9e6;
+            text-decoration: none;
+            font-weight: 400;
+            transition: all 0.3s ease;
+        }
+
+        .footer-section ul li a:hover {
+            color: #ffd700;
+            transform: translateX(5px);
+        }
+
+        .footer-section .social-links a {
+            color: #fff;
+            font-size: 1.5rem;
+            margin-right: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .footer-section .social-links a:hover {
+            color: #ffd700;
+            transform: scale(1.2);
+        }
+
+        .newsletter-form {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .newsletter-form input {
+            padding: 10px;
+            border: none;
+            border-radius: 25px;
+            width: 200px;
+            font-size: 0.9rem;
+            box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .newsletter-form button {
+            background: linear-gradient(45deg, #ff6b6b, #ffd700);
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            color: #fff;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .newsletter-form button:hover {
+            background: linear-gradient(45deg, #ff8787, #ffe066);
+            transform: translateY(-2px);
+        }
+
+        .footer-bottom {
+            text-align: center;
+            padding-top: 30px;
+            font-size: 0.9rem;
+            color: #d1d9e6;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* Scroll to Top Button */
+        #scrollTopBtn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: linear-gradient(45deg, #ff6b6b, #ffd700);
+            color: #fff;
+            border: none;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            font-size: 1.5rem;
+            display: none;
+            z-index: 1000;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        #scrollTopBtn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 992px) {
+            .navbar {
+                padding: 10px 20px;
+            }
+            .navbar-brand {
+                font-size: 1.8rem;
+            }
+            .footer-content {
+                flex-direction: column;
+                text-align: center;
+            }
+            .footer-section {
+                margin-bottom: 40px;
+            }
+            .newsletter-form {
+                justify-content: center;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .navbar-brand {
+                font-size: 1.5rem;
+            }
+            .navbar-nav .nav-link {
+                font-size: 1rem;
+                padding: 10px 15px;
+            }
+            .profile-dropdown img {
+                width: 35px;
+                height: 35px;
+            }
+            .card-img-top {
+                height: 180px;
+            }
+            #scrollTopBtn {
+                width: 40px;
+                height: 40px;
+                font-size: 1.2rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-light px-4">
+        <a class="navbar-brand fw-bold" href="{% url 'home' %}">RoomMate</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav me-auto">
+                {% if user.is_authenticated %}
+                <li class="nav-item">
+                    <a class="nav-link {% if request.path == '/home/' %}active{% endif %}" href="{% url 'home' %}">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if request.path == '/rooms/add/' %}active{% endif %}" href="{% url 'add_room' %}">Add Room</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if request.path == '/my-rooms/' %}active{% endif %}" href="{% url 'my_rooms' %}">My Rooms</a>
+                </li>
+                {% if user.is_superuser %}
+                <li class="nav-item">
+                    <a class="nav-link {% if request.path == '/admin-dashboard/' %}active{% endif %}" href="{% url 'admin_dashboard' %}">Admin</a>
+                </li>
+                {% else %}
+                <li class="nav-item">
+                    <a class="nav-link {% if request.path == '/admin-login/' %}active{% endif %}" href="{% url 'admin_login' %}">Admin</a>
+                </li>
+                {% endif %}
+                {% endif %}
+            </ul>
+
+            <ul class="navbar-nav ms-auto">
+                {% if user.is_authenticated %}
+                <li class="nav-item dropdown profile-dropdown">
+                    <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="profileDropdown" role="button" data-bs-toggle="dropdown">
+                        <img src="{% if user.profile.profile_picture %}{{ user.profile.profile_picture.url }}{% else %}{% static 'listings/images/default.jpg' %}{% endif %}" alt="Profile" class="rounded-circle">
+                        <span class="ms-2 text-white">{{ user.username }}</span>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><a class="dropdown-item" href="{% url 'profile' %}"><i class="fas fa-user me-2"></i>Profile</a></li>
+                        <li><a class="dropdown-item" href="{% url 'edit_profile' %}"><i class="fas fa-edit me-2"></i>Edit Profile</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item text-danger" href="{% url 'logout' %}"><i class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
+                    </ul>
+                </li>
+                {% else %}
+                <li class="nav-item">
+                    <a class="btn btn-primary" href="{% url 'login_register' %}">Login / Register</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if request.path == '/admin-login/' %}active{% endif %}" href="{% url 'admin_login' %}">Admin</a>
+                </li>
+                {% endif %}
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container mt-5">
+        {% block content %}{% endblock %}
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-section">
+                <h5>RoomMate</h5>
+                <p style="color: #d1d9e6; font-size: 0.95rem;">Find your perfect room with ease. Connect with roommates and explore listings tailored to your needs.</p>
+            </div>
+            <div class="footer-section">
+                <h5>Quick Links</h5>
+                <ul>
+                    <li><a href="{% url 'home' %}">Home</a></li>
+                    <li><a href="{% url 'add_room' %}">Add Room</a></li>
+                    <li><a href="{% url 'my_rooms' %}">My Rooms</a></li>
+                    <li><a href="{% url 'login_register' %}">Login/Register</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h5>Connect With Us</h5>
+                <div class="social-links">
+                    <a href="https://facebook.com" target="_blank"><i class="fab fa-facebook-f"></i></a>
+                    <a href="https://twitter.com" target="_blank"><i class="fab fa-twitter"></i></a>
+                    <a href="https://www.instagram.com/pawan_patil_09_?igsh=MWJ3NmZpNzdjamVlNw==" target="_blank"><i class="fab fa-instagram"></i></a>
+                    <a href="https://www.linkedin.com/in/pawan-talekar-697324229/" target="_blank"><i class="fab fa-linkedin-in"></i></a>
+                </div>
+            </div>
+            {% comment %} <div class="footer-section">
+                <h5>Newsletter</h5>
+                <p style="color: #d1d9e6; font-size: 0.95rem;">Stay updated with the latest room listings!</p>
+                <form class="newsletter-form" onsubmit="alert('Subscribed! (Demo)'); return false;">
+                    <input type="email" placeholder="Enter your email" required>
+                    <button type="submit">Subscribe</button>
+                </form>
+            </div> {% endcomment %}
+        </div>
+        <div class="footer-bottom">
+            <p>© 2025 RoomMate. All rights reserved. Designed by Pawan Talekar.</p>
+        </div>
+    </footer>
+
+    <!-- Scroll to Top Button -->
+    <button id="scrollTopBtn" title="Back to Top"><i class="fas fa-arrow-up"></i></button>
+
+    <!-- JavaScript for Navbar Scroll and Scroll to Top -->
+    <script>
+        // Navbar Scroll Effect
+        window.addEventListener('scroll', () => {
+            const navbar = document.querySelector('.navbar');
+            if (window.scrollY > 50) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+        });
+
+        // Scroll to Top Button
+        const scrollTopBtn = document.getElementById('scrollTopBtn');
+        window.addEventListener('scroll', () => {
+            scrollTopBtn.style.display = window.scrollY > 300 ? 'block' : 'none';
+        });
+
+        scrollTopBtn.addEventListener('click', () => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+    </script>
+</body>
+
+</html>

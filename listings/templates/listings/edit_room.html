@@ -1,0 +1,481 @@
+{% extends 'listings/base.html' %}
+{% load static %}
+
+{% block title %}Edit Room{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <h2 class="text-center mb-5" style="font-weight: 800; color: #1e3c72; letter-spacing: 1.5px; text-transform: uppercase; font-family: 'Poppins', sans-serif;">Edit Your Room</h2>
+    <div class="card mx-auto shadow-lg" style="max-width: 750px; border-radius: 20px; background: #ffffff; border: 3px solid transparent; background-clip: padding-box; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1); position: relative; overflow: hidden;">
+        <div class="card-body p-5" style="background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);">
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+
+                <!-- Room Title -->
+                <div class="mb-4 form-group">
+                    <label for="id_title" class="form-label">Room Title</label>
+                    <input type="text" name="title" id="id_title" class="form-control {% if form.title.errors %}is-invalid{% endif %}" 
+                           value="{{ form.title.value|default:'' }}" placeholder="Enter room title">
+                    {% if form.title.errors %}
+                        <div class="invalid-feedback d-block">
+                            {% for error in form.title.errors %}{{ error }}<br>{% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Location -->
+                <div class="mb-4 form-group">
+                    <label for="id_location" class="form-label">Location</label>
+                    <input type="text" name="location" id="id_location" class="form-control {% if form.location.errors %}is-invalid{% endif %}" 
+                           value="{{ form.location.value|default:'' }}" placeholder="Enter location">
+                    {% if form.location.errors %}
+                        <div class="invalid-feedback d-block">
+                            {% for error in form.location.errors %}{{ error }}<br>{% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Price -->
+                <div class="mb-4 form-group">
+                    <label for="id_price" class="form-label">Price</label>
+                    <input type="number" step="0.01" name="price" id="id_price" class="form-control {% if form.price.errors %}is-invalid{% endif %}" 
+                           value="{{ form.price.value|default:'' }}" placeholder="Enter price (e.g., 5000.00)">
+                    {% if form.price.errors %}
+                        <div class="invalid-feedback d-block">
+                            {% for error in form.price.errors %}{{ error }}<br>{% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Room Type -->
+                <div class="mb-4 form-group">
+                    <label for="id_room_type" class="form-label">Room Type</label>
+                    <div class="select-wrapper">
+                        <select name="room_type" id="id_room_type" class="form-select {% if form.room_type.errors %}is-invalid{% endif %}">
+                            {% for value, label in form.room_type.field.choices %}
+                                <option value="{{ value }}" {% if form.room_type.value == value %}selected{% endif %}>{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    {% if form.room_type.errors %}
+                        <div class="invalid-feedback d-block">
+                            {% for error in form.room_type.errors %}{{ error }}<br>{% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- For Whom -->
+                <div class="mb-4 form-group">
+                    <label for="id_for_whom" class="form-label">For Whom</label>
+                    <div class="select-wrapper">
+                        <select name="for_whom" id="id_for_whom" class="form-select {% if form.for_whom.errors %}is-invalid{% endif %}">
+                            {% for value, label in form.for_whom.field.choices %}
+                                <option value="{{ value }}" {% if form.for_whom.value == value %}selected{% endif %}>{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    {% if form.for_whom.errors %}
+                        <div class="invalid-feedback d-block">
+                            {% for error in form.for_whom.errors %}{{ error }}<br>{% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Facilities -->
+                <div class="mb-4 form-group">
+                    <label class="form-label">Facilities</label>
+                    <div class="facilities-container">
+                        {% for checkbox in form.facilities %}
+                            <div class="form-check">
+                                {{ checkbox.tag }}
+                                <label class="form-check-label" for="{{ checkbox.id_for_label }}">{{ checkbox.choice_label }}</label>
+                            </div>
+                        {% endfor %}
+                    </div>
+                    {% if form.facilities.errors %}
+                        <div class="text-danger mt-1" style="font-size: 0.9rem;">
+                            {% for error in form.facilities.errors %}{{ error }}<br>{% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Description -->
+                <div class="mb-4 form-group">
+                    <label for="id_description" class="form-label">Description</label>
+                    <textarea name="description" id="id_description" class="form-control {% if form.description.errors %}is-invalid{% endif %}" 
+                              placeholder="Describe your room (e.g., spacious, well-lit, near metro)">{{ form.description.value|default:'' }}</textarea>
+                    {% if form.description.errors %}
+                        <div class="invalid-feedback d-block">
+                            {% for error in form.description.errors %}{{ error }}<br>{% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Contact Number -->
+                <div class="mb-4 form-group">
+                    <label for="id_contact_number" class="form-label">Contact Number</label>
+                    <input type="text" name="contact_number" id="id_contact_number" class="form-control {% if form.contact_number.errors %}is-invalid{% endif %}" 
+                           value="{{ form.contact_number.value|default:'' }}" placeholder="e.g., +91 12345 67890">
+                    <small class="text-muted">Provide a number for users to contact you.</small>
+                    {% if form.contact_number.errors %}
+                        <div class="invalid-feedback d-block">
+                            {% for error in form.contact_number.errors %}{{ error }}<br>{% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Main Image -->
+                <div class="mb-4 form-group">
+                    <label for="id_main_image" class="form-label">Main Image</label>
+                    <div class="file-upload-wrapper">
+                        <input type="file" name="main_image" id="id_main_image" class="form-control {% if form.main_image.errors %}is-invalid{% endif %}">
+                        <span class="file-placeholder">No file chosen</span>
+                    </div>
+                    {% if room.main_image %}
+                        <small class="text-muted mt-1 d-block">Current image: <a href="{{ room.main_image.url }}" target="_blank" style="color: #ff6b6b; text-decoration: none;">View</a></small>
+                    {% endif %}
+                    {% if form.main_image.errors %}
+                        <div class="invalid-feedback d-block">
+                            {% for error in form.main_image.errors %}{{ error }}<br>{% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Additional Images -->
+                <div class="mb-4 form-group">
+                    <label for="id_additional_images" class="form-label">Additional Images</label>
+                    <div class="file-upload-wrapper">
+                        <input type="file" name="additional_images" id="id_additional_images" class="form-control {% if form.additional_images.errors %}is-invalid{% endif %}" multiple>
+                        <span class="file-placeholder">No file chosen</span>
+                    </div>
+                    <small class="text-muted">Select multiple images to add to existing ones.</small>
+                    {% if form.additional_images.errors %}
+                        <div class="invalid-feedback d-block">
+                            {% for error in form.additional_images.errors %}{{ error }}<br>{% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Submit Button -->
+                <button type="submit" class="btn btn-primary w-100">Save Changes</button>
+            </form>
+        </div>
+    </div>
+
+    {% if room.additional_images.all %}
+        <div class="mt-5">
+            <h3 class="text-center mb-4" style="font-weight: 700; color: #1e3c72; font-family: 'Poppins', sans-serif;">Existing Additional Images</h3>
+            <div class="row justify-content-center g-3">
+                {% for img in room.additional_images.all %}
+                    <div class="col-md-4 col-sm-6">
+                        <div class="image-card" style="border-radius: 15px; overflow: hidden; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1); transition: transform 0.3s ease, box-shadow 0.3s ease;">
+                            <img src="{{ img.image.url }}" alt="Room Image" class="img-fluid" style="width: 100%; height: 180px; object-fit: cover; transition: transform 0.3s ease;">
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    {% endif %}
+</div>
+
+<!-- Custom Styles -->
+<style>
+    /* Font Import (requires Google Fonts link in base.html) */
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap');
+
+    body {
+        font-family: 'Poppins', sans-serif;
+        background: linear-gradient(135deg, #f0f4f8 0%, #e2e8f0 100%);
+    }
+
+    .container {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    /* Card Styling */
+    .card {
+        animation: fadeInUp 0.6s ease-out;
+        position: relative;
+    }
+
+    .card::before {
+        content: '';
+        position: absolute;
+        top: -3px;
+        left: -3px;
+        right: -3px;
+        bottom: -3px;
+        border-radius: 20px;
+        background: linear-gradient(45deg, #ff6b6b, #ffd700);
+        z-index: -1;
+    }
+
+    /* Form Styling */
+    .form-group {
+        position: relative;
+    }
+
+    .form-label {
+        font-weight: 600;
+        color: #2c3e50;
+        font-size: 1.1rem;
+        margin-bottom: 0.5rem;
+        transition: color 0.3s ease;
+    }
+
+    .form-control, .form-select {
+        border: 2px solid #e0e0e0;
+        border-radius: 12px;
+        padding: 12px 15px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        background: #fff;
+        width: 100%;
+    }
+
+    .form-control:focus, .form-select:focus {
+        border-color: #ff6b6b;
+        box-shadow: 0 0 12px rgba(255, 107, 107, 0.3);
+        outline: none;
+    }
+
+    .form-control:hover, .form-select:hover {
+        border-color: #ffd700;
+    }
+
+    /* Room Type & For Whom Styling */
+    .select-wrapper {
+        position: relative;
+    }
+
+    .select-wrapper::after {
+        content: '\25BC'; /* Down arrow */
+        position: absolute;
+        right: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #6b7280;
+        font-size: 1rem;
+        pointer-events: none;
+        transition: color 0.3s ease;
+    }
+
+    .form-select {
+        appearance: none;
+        padding-right: 40px;
+        background: #fff;
+        border: 2px solid #e0e0e0;
+        border-radius: 12px;
+        height: 48px;
+        font-size: 1rem;
+        cursor: pointer;
+    }
+
+    .form-select:hover {
+        border-color: #ffd700;
+    }
+
+    .form-select:focus {
+        border-color: #ff6b6b;
+        box-shadow: 0 0 12px rgba(255, 107, 107, 0.3);
+    }
+
+    .select-wrapper:hover::after {
+        color: #ffd700;
+    }
+
+    /* Facilities Styling */
+    .facilities-container {
+        background: #f9fafb;
+        padding: 15px;
+        border-radius: 12px;
+        border: 2px solid #e0e0e0;
+    }
+
+    .facilities-container .form-check {
+        margin-bottom: 12px;
+        display: flex;
+        align-items: center;
+        transition: transform 0.2s ease;
+    }
+
+    .facilities-container .form-check:hover {
+        transform: translateX(5px);
+    }
+
+    .form-check-input {
+        margin-right: 10px;
+        border: 2px solid #e0e0e0;
+        width: 18px;
+        height: 18px;
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+
+    .form-check-input:checked {
+        background-color: #ff6b6b;
+        border-color: #ff6b6b;
+    }
+
+    .form-check-input:focus {
+        box-shadow: 0 0 8px rgba(255, 107, 107, 0.3);
+    }
+
+    .form-check-label {
+        color: #2c3e50;
+        font-size: 0.95rem;
+        font-weight: 500;
+        transition: color 0.3s ease;
+        cursor: pointer;
+    }
+
+    .form-check:hover .form-check-label {
+        color: #ff6b6b;
+    }
+
+    /* Description Styling */
+    textarea.form-control {
+        resize: vertical;
+        min-height: 150px;
+        padding: 15px;
+        font-size: 1rem;
+        border: 2px solid #e0e0e0;
+        border-radius: 12px;
+        background: #fff;
+        transition: all 0.3s ease;
+    }
+
+    textarea.form-control:focus {
+        border-color: #ff6b6b;
+        box-shadow: 0 0 12px rgba(255, 107, 107, 0.3);
+    }
+
+    textarea.form-control:hover {
+        border-color: #ffd700;
+    }
+
+    /* File Upload Styling */
+    .file-upload-wrapper {
+        position: relative;
+        display: flex;
+        align-items: center;
+    }
+
+    input[type="file"] {
+        border: 2px dashed #e0e0e0;
+        border-radius: 12px;
+        padding: 15px;
+        background: #fff;
+        width: 100%;
+        cursor: pointer;
+        transition: border-color 0.3s ease;
+    }
+
+    input[type="file"]:hover {
+        border-color: #ffd700;
+    }
+
+    input[type="file"]:focus {
+        border-color: #ff6b6b;
+        box-shadow: 0 0 12px rgba(255, 107, 107, 0.3);
+    }
+
+    .file-placeholder {
+        position: absolute;
+        left: 20px;
+        color: #6b7280;
+        font-size: 0.9rem;
+        pointer-events: none;
+        transition: opacity 0.3s ease;
+    }
+
+    input[type="file"]:valid + .file-placeholder {
+        opacity: 0;
+    }
+
+    /* Button Styling */
+    .btn-primary {
+        background: linear-gradient(45deg, #ff6b6b, #ffd700);
+        border: none;
+        padding: 14px;
+        font-weight: 600;
+        font-size: 1.1rem;
+        border-radius: 30px;
+        transition: all 0.3s ease;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .btn-primary:hover {
+        background: linear-gradient(45deg, #ff8787, #ffe066);
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(255, 107, 107, 0.4);
+    }
+
+    /* Image Card Styling */
+    .image-card {
+        position: relative;
+        overflow: hidden;
+    }
+
+    .image-card:hover img {
+        transform: scale(1.1);
+    }
+
+    .image-card:hover {
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        transform: translateY(-5px);
+    }
+
+    /* Animations */
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(30px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Responsive Adjustments */
+    @media (max-width: 768px) {
+        .card {
+            max-width: 100%;
+            margin: 0 15px;
+        }
+
+        .btn-primary {
+            padding: 12px;
+            font-size: 1rem;
+        }
+
+        .image-card img {
+            height: 150px;
+        }
+
+        .facilities-container {
+            padding: 10px;
+        }
+    }
+
+    .text-muted {
+        font-size: 0.9rem;
+        color: #6b7280 !important;
+    }
+</style>
+
+<!-- JavaScript for File Placeholder -->
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        document.querySelectorAll('input[type="file"]').forEach(input => {
+            input.addEventListener('change', function () {
+                const placeholder = this.nextElementSibling;
+                if (this.files.length > 0) {
+                    placeholder.textContent = this.files.length === 1 ? this.files[0].name : `${this.files.length} files selected`;
+                } else {
+                    placeholder.textContent = 'No file chosen';
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}

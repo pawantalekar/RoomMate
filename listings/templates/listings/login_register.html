@@ -1,0 +1,305 @@
+{% extends 'listings/base.html' %}
+
+{% block title %}Login / Register{% endblock %}
+
+{% block content %}
+<style>
+    /* Container Styling */
+    body {
+        background: linear-gradient(135deg, #eef2f7 0%, #d1d9e6 100%);
+        overflow: hidden; /* Prevent scroll for background animation */
+    }
+
+    .auth-wrapper {
+        position: relative;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 40px 20px;
+    }
+
+    .auth-container {
+        max-width: 450px;
+        width: 100%;
+        background: #ffffff;
+        border-radius: 20px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+        overflow: hidden;
+        position: relative;
+        z-index: 2;
+        animation: slideIn 0.6s ease-out;
+    }
+
+    /* Background Animation */
+    .background-blur {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: radial-gradient(circle at 20% 30%, rgba(255, 107, 107, 0.2), transparent 50%),
+                    radial-gradient(circle at 80% 70%, rgba(255, 215, 0, 0.2), transparent 50%);
+        filter: blur(50px);
+        animation: pulse 10s infinite alternate ease-in-out;
+        z-index: 1;
+    }
+
+    @keyframes pulse {
+        0% { transform: scale(1); }
+        100% { transform: scale(1.1); }
+    }
+
+    /* Toggle Tabs */
+    .auth-tabs {
+        display: flex;
+        background: linear-gradient(90deg, #1e3c72 0%, #2a5298 100%);
+        border-radius: 20px 20px 0 0;
+    }
+
+    .auth-tab {
+        flex: 1;
+        padding: 15px 20px;
+        text-align: center;
+        color: #fff;
+        font-weight: 600;
+        font-size: 1.2rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        border-bottom: 3px solid transparent;
+    }
+
+    .auth-tab.active {
+        background: rgba(255, 255, 255, 0.1);
+        border-bottom: 3px solid #ffd700;
+        color: #ffd700;
+    }
+
+    .auth-tab:hover {
+        background: rgba(255, 215, 0, 0.1);
+    }
+
+    /* Form Container */
+    .form-container {
+        padding: 40px;
+        display: none;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .form-container.active {
+        display: block;
+        opacity: 1;
+    }
+
+    .form-container h3 {
+        font-weight: 700;
+        font-size: 2rem;
+        color: #1e3c72;
+        text-align: center;
+        margin-bottom: 25px;
+        letter-spacing: 1px;
+    }
+
+    /* Form Inputs */
+    .form-group {
+        margin-bottom: 20px;
+        position: relative;
+    }
+
+    .form-group label {
+        font-weight: 500;
+        color: #2c3e50;
+        margin-bottom: 5px;
+        display: block;
+    }
+
+    .form-group input[type="text"],
+    .form-group input[type="email"],
+    .form-group input[type="password"] {
+        width: 100%;
+        padding: 12px 15px;
+        border: 2px solid #e0e0e0;
+        border-radius: 10px;
+        font-size: 1rem;
+        color: #333;
+        background: #f9fafb;
+        transition: all 0.3s ease;
+    }
+
+    .form-group input:focus {
+        border-color: #ff6b6b;
+        box-shadow: 0 0 10px rgba(255, 107, 107, 0.3);
+        outline: none;
+    }
+
+    .form-group input:hover {
+        border-color: #ffd700;
+    }
+
+    /* Error and Success Messages */
+    .errorlist {
+        color: #dc3545;
+        font-size: 0.9rem;
+        margin-top: 5px;
+        list-style: none;
+        padding: 0;
+    }
+
+    .message {
+        font-size: 0.9rem;
+        text-align: center;
+        padding: 10px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+    }
+
+    .message.error {
+        background: #f8d7da;
+        color: #721c24;
+    }
+
+    .message.success {
+        background: #d4edda;
+        color: #155724;
+    }
+
+    /* Button Styling */
+    .btn-custom {
+        width: 100%;
+        padding: 12px;
+        border: none;
+        border-radius: 25px;
+        font-weight: 600;
+        font-size: 1.1rem;
+        text-transform: uppercase;
+        color: #fff;
+        background: linear-gradient(45deg, #ff6b6b, #ffd700);
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+    }
+
+    .btn-custom:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 20px rgba(255, 107, 107, 0.5);
+        filter: brightness(1.1);
+    }
+
+    /* Responsive Design */
+    @media (max-width: 576px) {
+        .auth-container {
+            margin: 20px;
+            padding: 0;
+        }
+        .form-container {
+            padding: 20px;
+        }
+        .form-container h3 {
+            font-size: 1.6rem;
+        }
+        .auth-tab {
+            font-size: 1rem;
+            padding: 12px;
+        }
+    }
+
+    /* Animation */
+    @keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+</style>
+
+<div class="auth-wrapper">
+    <!-- Background Animation -->
+    <div class="background-blur"></div>
+
+    <!-- Auth Container -->
+    <div class="auth-container">
+        <!-- Tabs -->
+        <div class="auth-tabs">
+            <div class="auth-tab active" data-tab="login">Login</div>
+            <div class="auth-tab" data-tab="register">Register</div>
+        </div>
+
+        <!-- Login Form -->
+        <div class="form-container active" id="login-form">
+            <h3>Login</h3>
+            {% if login_error %}
+                <div class="message error">{{ login_error }}</div>
+            {% endif %}
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="message {% if message.tags == 'success' %}success{% else %}error{% endif %}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+            <form method="POST">
+                {% csrf_token %}
+                {% for field in login_form %}
+                    <div class="form-group">
+                        {{ field.label_tag }}
+                        {{ field }}
+                        {% if field.errors %}
+                            {{ field.errors }}
+                        {% endif %}
+                    </div>
+                {% endfor %}
+                <button type="submit" name="login" class="btn-custom">Login</button>
+            </form>
+        </div>
+
+        <!-- Register Form -->
+        <div class="form-container" id="register-form">
+            <h3>Register</h3>
+            {% if reg_error %}
+                <div class="message error">{{ reg_error }}</div>
+            {% endif %}
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="message {% if message.tags == 'success' %}success{% else %}error{% endif %}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+            <form method="POST">
+                {% csrf_token %}
+                {% for field in reg_form %}
+                    <div class="form-group">
+                        {{ field.label_tag }}
+                        {{ field }}
+                        {% if field.errors %}
+                            {{ field.errors }}
+                        {% endif %}
+                    </div>
+                {% endfor %}
+                <button type="submit" name="register" class="btn-custom">Register</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- JavaScript for Tab Switching -->
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const tabs = document.querySelectorAll(".auth-tab");
+        const forms = document.querySelectorAll(".form-container");
+
+        tabs.forEach(tab => {
+            tab.addEventListener("click", () => {
+                // Remove active class from all tabs and forms
+                tabs.forEach(t => t.classList.remove("active"));
+                forms.forEach(f => f.classList.remove("active"));
+
+                // Add active class to clicked tab and corresponding form
+                tab.classList.add("active");
+                const targetForm = document.getElementById(`${tab.dataset.tab}-form`);
+                targetForm.classList.add("active");
+            });
+        });
+    });
+</script>
+{% endblock %}

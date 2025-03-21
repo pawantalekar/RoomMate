@@ -1,0 +1,488 @@
+{% extends 'listings/base.html' %}
+{% load static %}
+
+{% block title %}Home{% endblock %}
+
+{% block content %}
+<style>
+    .container {
+        margin-top: 40px;
+        padding: 0 20px;
+        font-family: 'Poppins', sans-serif;
+    }
+
+    h1 {
+        font-weight: 800;
+        color: #1e3c72;
+        background: linear-gradient(45deg, #ff6b6b, #ffd700);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .filters-panel {
+        background: linear-gradient(135deg, #ffffff, #f8f9fa);
+        padding: 30px;
+        border-radius: 20px;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        position: sticky;
+        top: 20px;
+        max-height: calc(100vh - 60px);
+        overflow-y: auto;
+        transition: all 0.3s ease;
+    }
+
+    .filters-panel h4 {
+        font-weight: 700;
+        color: #1e3c72;
+        margin-bottom: 25px;
+        letter-spacing: 1.2px;
+    }
+
+    .filters-panel label {
+        font-weight: 600;
+        color: #2c3e50;
+        margin-bottom: 8px;
+    }
+
+    .filters-panel .form-select,
+    .filters-panel .form-control,
+    .filters-panel .form-check {
+        border-radius: 10px;
+        border: 2px solid #e0e0e0;
+        padding: 10px;
+        transition: all 0.3s ease;
+    }
+
+    .filters-panel .form-select:focus,
+    .filters-panel .form-control:focus {
+        border-color: #ff6b6b;
+        box-shadow: 0 0 10px rgba(255, 107, 107, 0.3);
+    }
+
+    .filters-panel .form-check-input {
+        cursor: pointer;
+        border-radius: 4px;
+    }
+
+    .filters-panel .form-check-input:checked {
+        background-color: #ff6b6b;
+        border-color: #ff6b6b;
+    }
+
+    .price-slider {
+        width: 100%;
+        margin: 10px 0 20px;
+    }
+
+    .price-display {
+        font-size: 0.9rem;
+        color: #6b7280;
+    }
+
+    .btn-primary, .btn-reset {
+        background: linear-gradient(45deg, #ff6b6b, #ffd700);
+        border: none;
+        padding: 12px 20px;
+        font-weight: 600;
+        border-radius: 25px;
+        transition: all 0.3s ease;
+        color: #fff;
+    }
+
+    .btn-primary:hover, .btn-reset:hover {
+        background: linear-gradient(45deg, #ff8787, #ffe066);
+        transform: translateY(-3px);
+        box-shadow: 0 6px 20px rgba(255, 107, 107, 0.4);
+    }
+
+    .btn-reset {
+        background: #6b7280;
+    }
+
+    .btn-reset:hover {
+        background: #4b5563;
+    }
+
+    .room-listing {
+        background: #fff;
+        padding: 25px;
+        border-radius: 20px;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    }
+
+    .card {
+        border: none;
+        border-radius: 15px;
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+
+    .card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    }
+
+    .card-img-top {
+        height: 200px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .room-image {
+        position: absolute;
+        top: 0;
+        left: 0;
+        opacity: 0;
+        height: 100%;
+        width: 100%;
+        object-fit: cover;
+        transition: opacity 0.5s ease-in-out;
+    }
+
+    .room-image.active {
+        opacity: 1;
+    }
+
+    .card-body {
+        padding: 20px;
+    }
+
+    .card-title {
+        font-weight: 700;
+        color: #1e3c72;
+    }
+
+    #map {
+        height: 300px;
+        width: 100%;
+        border-radius: 15px;
+        margin-top: 15px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    #map-search {
+        position: absolute;
+        top: 15px;
+        left: 15px;
+        z-index: 1000;
+        width: 250px;
+        padding: 10px;
+        border: 2px solid #e0e0e0;
+        border-radius: 10px;
+        background: #fff;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+    }
+
+    #map-search:focus {
+        border-color: #ff6b6b;
+        box-shadow: 0 0 10px rgba(255, 107, 107, 0.3);
+    }
+
+    #autocomplete-list {
+        position: absolute;
+        top: 55px;
+        left: 15px;
+        z-index: 1000;
+        width: 250px;
+        background: #fff;
+        border-radius: 10px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        max-height: 200px;
+        overflow-y: auto;
+        display: none;
+    }
+
+    .autocomplete-item {
+        padding: 10px;
+        cursor: pointer;
+        transition: background 0.2s ease;
+    }
+
+    .autocomplete-item:hover {
+        background: #f1f5f9;
+    }
+
+    @media (max-width: 768px) {
+        .filters-panel {
+            position: static;
+            margin-bottom: 30px;
+        }
+        #map-search, #autocomplete-list {
+            width: 200px;
+        }
+    }
+</style>
+
+<div class="container">
+    <h1 class="mb-4">Welcome{% if user.is_authenticated %}, {{ user.username }}{% endif %}!</h1>
+    <p style="font-size: 1.2rem; color: #6b7280;">Discover your perfect room with ease.</p>
+
+    <div class="row">
+        <!-- Filters Panel -->
+        <div class="col-md-3">
+            <div class="filters-panel">
+                <h4>Refine Your Search</h4>
+                <form method="GET" action="{% url 'home' %}" id="filter-form">
+                    <div class="mb-4">
+                        <label for="id_room_type">Room Type</label>
+                        <select name="room_type" id="id_room_type" class="form-select">
+                            <option value="">All Types</option>
+                            {% for choice_value, choice_label in room_type_choices %}
+                                <option value="{{ choice_value }}" {% if request.GET.room_type == choice_value %}selected{% endif %}>
+                                    {{ choice_label }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="id_for_whom">For Whom</label>
+                        <select name="for_whom" id="id_for_whom" class="form-select">
+                            <option value="">Anyone</option>
+                            {% for choice_value, choice_label in for_whom_choices %}
+                                <option value="{{ choice_value }}" {% if request.GET.for_whom == choice_value %}selected{% endif %}>
+                                    {{ choice_label }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="mb-4">
+                        <label>Facilities</label>
+                        {% for facility in all_facilities %}
+                            <div class="form-check">
+                                <input type="checkbox" name="facilities" value="{{ facility.name }}"
+                                    class="form-check-input" {% if facility.name in selected_facilities %}checked{% endif %}>
+                                <label class="form-check-label">{{ facility.name }}</label>
+                            </div>
+                        {% empty %}
+                            <p class="text-muted">No facilities available.</p>
+                        {% endfor %}
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="id_location">Location</label>
+                        <input type="text" name="location" id="id_location" class="form-control"
+                            placeholder="Enter coordinates or address" value="{{ request.GET.location|default:'' }}">
+                    </div>
+
+                    <div class="mb-4 position-relative">
+                        <label>Explore on Map</label>
+                        <input type="text" id="map-search" placeholder="Search a place">
+                        <div id="autocomplete-list"></div>
+                        <div id="map"></div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="id_max_price">Price Range</label>
+                        <input type="range" name="max_price" id="id_max_price" class="price-slider"
+                            min="0" max="10000" step="100" value="{{ request.GET.max_price|default:'10000' }}">
+                        <div class="price-display">Up to ₹<span id="price-value">{{ request.GET.max_price|default:'10000' }}</span></div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100 mb-2">Apply Filters</button>
+                    <button type="button" class="btn btn-reset w-100" onclick="document.getElementById('filter-form').reset(); document.getElementById('filter-form').submit();">Reset Filters</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Room Listings -->
+        <div class="col-md-9">
+            <div class="room-listing">
+                <h4>Available Rooms</h4>
+                <p><strong>Total:</strong> {{ rooms|length }} rooms found</p>
+
+                {% if rooms %}
+                    <div class="row mt-4">
+                        {% for room in rooms %}
+                            <div class="col-md-4 mb-4">
+                                <div class="card shadow h-100">
+                                    <div class="card-img-top position-relative">
+                                        <img src="{% if room.main_image %}{{ room.main_image.url }}{% else %}{% static 'listings/images/default-room.jpg' %}{% endif %}" 
+                                            class="room-image active" alt="Room Image">
+                                        <div class="image-list" style="display: none;" 
+                                            data-images="{% if room.main_image %}{{ room.main_image.url }}{% endif %}{% for img in room.additional_images.all %},{{ img.image.url }}{% endfor %}">
+                                        </div>
+                                    </div>
+                                    <div class="card-body d-flex flex-column">
+                                        <h5 class="card-title">{{ room.title }}</h5>
+                                        <p class="card-text flex-grow-1">
+                                            <strong>Location:</strong> {{ room.location|default:"Not specified" }}<br>
+                                            <strong>Price:</strong> ₹{{ room.price }}<br>
+                                            <strong>Type:</strong> {{ room.get_room_type_display|default:room.room_type }}<br>
+                                            <strong>For:</strong> {{ room.get_for_whom_display|default:room.for_whom }}
+                                        </p>
+                                        <a href="{% url 'room_detail' room.id %}" class="btn btn-primary mt-auto">View Room</a>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="alert alert-info text-center mt-4">
+                        No rooms match your filters. <a href="{% url 'add_room' %}" class="fw-bold">Add a room!</a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Leaflet.js -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<!-- JavaScript -->
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        // Map Initialization
+        const map = L.map('map').setView([28.6139, 77.2090], 12);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+
+        let marker;
+        const markers = [];
+
+        // Room Markers
+        const rooms = [
+            {% for room in rooms %}
+            {% if room.latitude and room.longitude %}
+            {
+                title: "{{ room.title }}",
+                lat: {{ room.latitude }},
+                lon: {{ room.longitude }},
+                url: "{% url 'room_detail' room.id %}"
+            },
+            {% endif %}
+            {% endfor %}
+        ];
+
+        function addRoomMarkers() {
+            markers.forEach(m => map.removeLayer(m));
+            markers.length = 0;
+            rooms.forEach(room => {
+                const m = L.marker([room.lat, room.lon]).addTo(map)
+                    .bindPopup(`<b>${room.title}</b><br><a href="${room.url}">View Details</a>`);
+                markers.push(m);
+            });
+            if (markers.length > 0) {
+                const group = new L.featureGroup(markers);
+                map.fitBounds(group.getBounds());
+            }
+        }
+        addRoomMarkers();
+
+        // Map Click
+        map.on('click', function (e) {
+            if (marker) map.removeLayer(marker);
+            marker = L.marker([e.latlng.lat, e.latlng.lng]).addTo(map);
+            document.getElementById("id_location").value = `${e.latlng.lat}, ${e.latlng.lng}`;
+            document.getElementById("filter-form").submit(); // Auto-submit on click
+        });
+
+        // Search with Autocomplete
+        const searchInput = document.getElementById("map-search");
+        const autocompleteList = document.getElementById("autocomplete-list");
+        let searchTimeout;
+
+        searchInput.addEventListener("input", function () {
+            clearTimeout(searchTimeout);
+            const query = this.value.trim();
+            if (!query) {
+                autocompleteList.style.display = "none";
+                return;
+            }
+
+            searchTimeout = setTimeout(() => {
+                fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&limit=5`, {
+                    headers: {"User-Agent": "RoomFinder/1.0 (your-email@example.com)"}
+                })
+                .then(response => response.ok ? response.json() : Promise.reject(`Status: ${response.status}`))
+                .then(data => {
+                    autocompleteList.innerHTML = "";
+                    if (data.length > 0) {
+                        data.forEach(place => {
+                            const item = document.createElement("div");
+                            item.className = "autocomplete-item";
+                            item.textContent = place.display_name;
+                            item.onclick = () => {
+                                const { lat, lon } = place;
+                                map.setView([parseFloat(lat), parseFloat(lon)], 15);
+                                if (marker) map.removeLayer(marker);
+                                marker = L.marker([lat, lon]).addTo(map);
+                                document.getElementById("id_location").value = `${lat}, ${lon}`;
+                                document.getElementById("filter-form").submit(); // Auto-submit on selection
+                                autocompleteList.style.display = "none";
+                            };
+                            autocompleteList.appendChild(item);
+                        });
+                        autocompleteList.style.display = "block";
+                    } else {
+                        autocompleteList.style.display = "none";
+                    }
+                })
+                .catch(error => console.error("Autocomplete Error:", error));
+            }, 500);
+        });
+
+        searchInput.addEventListener("keypress", function (e) {
+            if (e.key === "Enter") {
+                clearTimeout(searchTimeout);
+                const query = this.value.trim();
+                if (query) {
+                    fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&limit=1`, {
+                        headers: {"User-Agent": "RoomFinder/1.0 (your-email@example.com)"}
+                    })
+                    .then(response => response.ok ? response.json() : Promise.reject(`Status: ${response.status}`))
+                    .then(data => {
+                        if (data.length > 0) {
+                            const { lat, lon } = data[0];
+                            map.setView([parseFloat(lat), parseFloat(lon)], 15);
+                            if (marker) map.removeLayer(marker);
+                            marker = L.marker([lat, lon]).addTo(map);
+                            document.getElementById("id_location").value = `${lat}, ${lon}`;
+                            document.getElementById("filter-form").submit(); // Auto-submit on Enter
+                            autocompleteList.style.display = "none";
+                        }
+                    })
+                    .catch(error => console.error("Search Error:", error));
+                }
+            }
+        });
+
+        // Price Slider
+        const priceSlider = document.getElementById("id_max_price");
+        const priceValue = document.getElementById("price-value");
+        priceSlider.addEventListener("input", () => {
+            priceValue.textContent = priceSlider.value;
+        });
+
+        // Image Slideshow
+        document.querySelectorAll('.card').forEach(card => {
+            const imageContainer = card.querySelector('.card-img-top');
+            const imageListDiv = card.querySelector('.image-list');
+            let images = imageListDiv.getAttribute('data-images').split(',').filter(img => img);
+            if (!images.length) images = ["{% static 'listings/images/default-room.jpg' %}"];
+            let currentIndex = 0;
+
+            images.forEach((src, index) => {
+                const img = document.createElement('img');
+                img.src = src;
+                img.classList.add('room-image');
+                if (index === 0) img.classList.add('active');
+                imageContainer.appendChild(img);
+            });
+
+            const imageElements = imageContainer.querySelectorAll('.room-image');
+            function cycleImages() {
+                imageElements[currentIndex].classList.remove('active');
+                currentIndex = (currentIndex + 1) % images.length;
+                imageElements[currentIndex].classList.add('active');
+            }
+            setInterval(cycleImages, 3000);
+        });
+    });
+</script>
+{% endblock %}

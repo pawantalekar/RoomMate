@@ -1,0 +1,35 @@
+{% extends 'listings/base.html' %}
+
+{% block title %}Profile - {{ user.username }}{% endblock %}
+
+{% block content %}
+<style>
+    .profile-card {
+        max-width: 500px;
+        margin: auto;
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        text-align: center;
+    }
+    
+    .profile-img {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        object-fit: cover;
+        margin-bottom: 15px;
+    }
+</style>
+
+<div class="profile-card">
+    <img src="{{ user.profile.profile_picture.url }}" class="profile-img" alt="Profile Picture">
+    <h3>{{ user.username }}</h3>
+    <p><strong>Email:</strong> {{ user.email }}</p>
+    <p><strong>Joined:</strong> {{ user.date_joined|date:"F d, Y" }}</p>
+
+    <a href="{% url 'edit_profile' %}" class="btn btn-warning">Edit Profile</a>
+    <a href="{% url 'logout' %}" class="btn btn-danger">Logout</a>
+</div>
+{% endblock %}

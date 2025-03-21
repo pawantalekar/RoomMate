@@ -1,0 +1,77 @@
+{% extends 'listings/base.html' %}
+
+{% block title %}Edit Profile{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <h2 class="text-center mb-5" style="font-weight: 700; color: #1e3c72; letter-spacing: 1px;">Edit Your Profile</h2>
+    <div class="card mx-auto shadow-lg" style="max-width: 500px; border-radius: 15px; background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);">
+        <div class="card-body p-4">
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                
+                <!-- Form Fields -->
+                {% for field in form %}
+                    <div class="mb-4">
+                        <label for="{{ field.id_for_label }}" class="form-label" style="font-weight: 500; color: #2c3e50;">
+                            {{ field.label }}
+                        </label>
+                        {% if field.field.widget.input_type == 'file' %}
+                            <input type="file" name="{{ field.name }}" id="{{ field.id_for_label }}" class="form-control" 
+                                   style="border: 2px solid #e0e0e0; border-radius: 10px; padding: 10px; transition: border-color 0.3s ease;">
+                        {% else %}
+                            <input type="{{ field.field.widget.input_type }}" name="{{ field.name }}" id="{{ field.id_for_label }}" 
+                                   class="form-control" value="{{ field.value|default:'' }}" 
+                                   style="border: 2px solid #e0e0e0; border-radius: 10px; padding: 10px; transition: border-color 0.3s ease;">
+                        {% endif %}
+                        {% if field.errors %}
+                            <div class="text-danger mt-1" style="font-size: 0.9rem;">
+                                {% for error in field.errors %}
+                                    <p>{{ error }}</p>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                        {% if field.help_text %}
+                            <small class="text-muted" style="font-size: 0.85rem;">{{ field.help_text }}</small>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+
+                <!-- Submit Button -->
+                <button type="submit" class="btn btn-primary w-100" 
+                        style="background: linear-gradient(45deg, #ff6b6b, #ffd700); border: none; padding: 12px; font-weight: 600; border-radius: 30px; transition: all 0.3s ease;">
+                    Save Changes
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Custom Styles -->
+<style>
+    .form-control:focus {
+        border-color: #ff6b6b;
+        box-shadow: 0 0 8px rgba(255, 107, 107, 0.3);
+        outline: none;
+    }
+
+    .form-control:hover {
+        border-color: #ffd700;
+    }
+
+    .card {
+        animation: fadeIn 0.5s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .btn-primary:hover {
+        background: linear-gradient(45deg, #ff8787, #ffe066);
+        transform: translateY(-3px);
+        box-shadow: 0 4px 15px rgba(255, 107, 107, 0.4);
+    }
+</style>
+{% endblock %}
