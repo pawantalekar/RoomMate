@@ -1,6 +1,6 @@
 # 🏠 RoomMate - Find Your Perfect Roommate & Rental Room
 
-![RoomMate Banner]("C:\Users\Lenovo\RoomMate\RoomMate Banner.png")
+
 
 ## 🌟 Overview
 **RoomMate** is a modern and user-friendly platform built with Django that simplifies the process of finding roommates and rental rooms. Whether you're searching for a room, a housemate, or listing a rental, RoomMate makes it effortless and efficient.
