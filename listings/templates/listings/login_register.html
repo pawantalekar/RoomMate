@@ -7,7 +7,7 @@
     /* Container Styling */
     body {
         background: linear-gradient(135deg, #eef2f7 0%, #d1d9e6 100%);
-        overflow: hidden; /* Prevent scroll for background animation */
+        margin: 0; /* Ensure no default margin interferes */
     }
 
     .auth-wrapper {
@@ -17,6 +17,7 @@
         align-items: center;
         justify-content: center;
         padding: 40px 20px;
+        overflow-y: auto; /* Allow vertical scrolling for the wrapper */
     }
 
     .auth-container {
@@ -33,7 +34,7 @@
 
     /* Background Animation */
     .background-blur {
-        position: absolute;
+        position: fixed; /* Fixed to stay in viewport */
         top: 0;
         left: 0;
         width: 100%;
@@ -43,6 +44,7 @@
         filter: blur(50px);
         animation: pulse 10s infinite alternate ease-in-out;
         z-index: 1;
+        pointer-events: none; /* Prevent interaction with background */
     }
 
     @keyframes pulse {
@@ -134,6 +136,32 @@
     }
 
     .form-group input:hover {
+        border-color: #ffd700;
+    }
+
+    /* Styling for the role select field */
+    .form-group select {
+        width: 100%;
+        padding: 12px 15px;
+        border: 2px solid #e0e0e0;
+        border-radius: 10px;
+        font-size: 1rem;
+        color: #333;
+        background: #f9fafb;
+        transition: all 0.3s ease;
+        appearance: none; /* Remove default arrow */
+        background-image: url('data:image/svg+xml;utf8,<svg fill="%23333" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>');
+        background-repeat: no-repeat;
+        background-position: right 15px center;
+    }
+
+    .form-group select:focus {
+        border-color: #ff6b6b;
+        box-shadow: 0 0 10px rgba(255, 107, 107, 0.3);
+        outline: none;
+    }
+
+    .form-group select:hover {
         border-color: #ffd700;
     }
 

@@ -3,8 +3,13 @@ from django.contrib.auth.models import User
 from django.core.validators import RegexValidator
 
 
-# Profile Model for storing user information
 class Profile(models.Model):
+    ROLE_CHOICES = [
+        ('room_searcher', 'Room Searcher'),
+        ('room_owner', 'Room Owner'),
+        ('broker', 'Broker'),
+    ]
+
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     phone = models.CharField(
         max_length=15,
@@ -22,12 +27,17 @@ class Profile(models.Model):
         upload_to='profile_pics/',
         blank=True,
         null=True,
-        default='profile_pics/default_profile.jpg'  # Optional default image
+        default='profile_pics/default_profile.jpg'
+    )
+    role = models.CharField(
+        max_length=20,
+        choices=ROLE_CHOICES,
+        default='room_searcher',  # Default role
+        help_text="Select your role in the RoomMate platform."
     )
 
     def __str__(self):
         return self.user.username
-
 
 # Facility Model for managing facilities as checkboxes
 class Facility(models.Model):

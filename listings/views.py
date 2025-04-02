@@ -28,6 +28,7 @@ def haversine(lat1, lon1, lat2, lon2):
 # ===============================
 # LOGIN & REGISTER VIEW
 # ===============================
+# listings/views.py (partial update)
 def login_register_view(request):
     reg_form = RegistrationForm(request.POST or None)
     login_form = LoginForm(request, data=request.POST or None)
@@ -37,14 +38,11 @@ def login_register_view(request):
     if request.method == 'POST':
         if 'register' in request.POST:
             if reg_form.is_valid():
-                user = reg_form.save(commit=False)
-                user.set_password(reg_form.cleaned_data['password'])
-                user.save()
+                user = reg_form.save()  # This now creates the Profile too
                 login(request, user)
                 return redirect('home')
             else:
                 reg_error = "Please correct the errors below."
-
         elif 'login' in request.POST:
             if login_form.is_valid():
                 user = authenticate(
@@ -66,7 +64,6 @@ def login_register_view(request):
         'login_error': login_error,
         'reg_error': reg_error,
     })
-
 # ===============================
 # PROFILE VIEWS
 # ===============================

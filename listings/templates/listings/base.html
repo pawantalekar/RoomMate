@@ -19,11 +19,10 @@
 
     <!-- Leaflet.js -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
-
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
     <!-- Custom Styles -->
     <style>
-       
         body {
             font-family: 'Poppins', sans-serif;
             background: linear-gradient(135deg, #eef2f7 0%, #d1d9e6 100%);
@@ -398,49 +397,53 @@
 
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav me-auto">
-                {% if user.is_authenticated %}
+                <!-- Always show Home -->
                 <li class="nav-item">
                     <a class="nav-link {% if request.path == '/home/' %}active{% endif %}" href="{% url 'home' %}">Home</a>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link {% if request.path == '/rooms/add/' %}active{% endif %}" href="{% url 'add_room' %}">Add Room</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link {% if request.path == '/my-rooms/' %}active{% endif %}" href="{% url 'my_rooms' %}">My Rooms</a>
-                </li>
-                {% if user.is_superuser %}
-                <li class="nav-item">
-                    <a class="nav-link {% if request.path == '/admin-dashboard/' %}active{% endif %}" href="{% url 'admin_dashboard' %}">Admin</a>
-                </li>
-                {% else %}
-                <li class="nav-item">
-                    <a class="nav-link {% if request.path == '/admin-login/' %}active{% endif %}" href="{% url 'admin_login' %}">Admin</a>
-                </li>
+
+                <!-- Show Add Room and My Rooms only if authenticated and NOT a Room Searcher -->
+                {% if request.user.is_authenticated and request.user.profile.role != 'room_searcher' %}
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.path == '/rooms/add/' %}active{% endif %}" href="{% url 'add_room' %}">Add Room</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.path == '/my-rooms/' %}active{% endif %}" href="{% url 'my_rooms' %}">My Rooms</a>
+                    </li>
                 {% endif %}
+
+                <!-- Show Admin dashboard if superuser, Admin login if not authenticated -->
+                {% if request.user.is_authenticated %}
+                    {% if request.user.is_superuser %}
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.path == '/admin-dashboard/' %}active{% endif %}" href="{% url 'admin_dashboard' %}">Admin</a>
+                        </li>
+                    {% endif %}
+                {% else %}
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.path == '/admin-login/' %}active{% endif %}" href="{% url 'admin_login' %}">Admin</a>
+                    </li>
                 {% endif %}
             </ul>
 
             <ul class="navbar-nav ms-auto">
-                {% if user.is_authenticated %}
-                <li class="nav-item dropdown profile-dropdown">
-                    <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="profileDropdown" role="button" data-bs-toggle="dropdown">
-                        <img src="{% if user.profile.profile_picture %}{{ user.profile.profile_picture.url }}{% else %}{% static 'listings/images/default.jpg' %}{% endif %}" alt="Profile" class="rounded-circle">
-                        <span class="ms-2 text-white">{{ user.username }}</span>
-                    </a>
-                    <ul class="dropdown-menu dropdown-menu-end">
-                        <li><a class="dropdown-item" href="{% url 'profile' %}"><i class="fas fa-user me-2"></i>Profile</a></li>
-                        <li><a class="dropdown-item" href="{% url 'edit_profile' %}"><i class="fas fa-edit me-2"></i>Edit Profile</a></li>
-                        <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item text-danger" href="{% url 'logout' %}"><i class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
-                    </ul>
-                </li>
+                {% if request.user.is_authenticated %}
+                    <li class="nav-item dropdown profile-dropdown">
+                        <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="profileDropdown" role="button" data-bs-toggle="dropdown">
+                            <img src="{% if request.user.profile.profile_picture %}{{ request.user.profile.profile_picture.url }}{% else %}{% static 'listings/images/default.jpg' %}{% endif %}" alt="Profile" class="rounded-circle">
+                            <span class="ms-2 text-white">{{ request.user.username }}</span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="{% url 'profile' %}"><i class="fas fa-user me-2"></i>Profile</a></li>
+                            <li><a class="dropdown-item" href="{% url 'edit_profile' %}"><i class="fas fa-edit me-2"></i>Edit Profile</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item text-danger" href="{% url 'logout' %}"><i class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
+                        </ul>
+                    </li>
                 {% else %}
-                <li class="nav-item">
-                    <a class="btn btn-primary" href="{% url 'login_register' %}">Login / Register</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link {% if request.path == '/admin-login/' %}active{% endif %}" href="{% url 'admin_login' %}">Admin</a>
-                </li>
+                    <li class="nav-item">
+                        <a class="btn btn-primary" href="{% url 'login_register' %}">Login / Register</a>
+                    </li>
                 {% endif %}
             </ul>
         </div>
