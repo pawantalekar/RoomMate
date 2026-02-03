@@ -1,8 +1,8 @@
-# 🏠 RoomMate - Find Your Perfect Roommate & Rental Room
+# RoomMate - Find Your Perfect Roommate & Rental Room
 
 
 
-## 🌟 Overview
+## Overview
 **RoomMate** is a modern and user-friendly platform built with Django that simplifies the process of finding roommates and rental rooms. Whether you're searching for a room, a housemate, or listing a rental, RoomMate makes it effortless and efficient.
 
 ## 🚀 Features
@@ -78,10 +78,6 @@ Want to contribute? Follow these steps:
 
 ---
 
-## 📜 License
-This project is licensed under the **MIT License**. Feel free to use and modify it!
-
----
 
 ## 📧 Contact & Support
 For queries or support, reach out via 📩 [pawantalekar2@gmail.com) or open an issue on GitHub.
